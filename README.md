@@ -1,3 +1,3 @@
 # ReinforcemementTechniques
 
-DQN using GYM environment
+DQN using gym environment
