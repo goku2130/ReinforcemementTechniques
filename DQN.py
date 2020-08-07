@@ -52,11 +52,11 @@ class DQNAgent:  # Deep Q-Network
         self.min_epsilon = min_epsilon              # minimum epsilon
         self.gamma = gamma                          # discount rate
         self.batch_size = batch_size                # batch_size
-        self.target_update_iter = target_update_iter    # target network update period
-        self.train_nums = train_nums                # total training steps
+        self.target_update_iter = target_update_iter# target network update period
+        self.train_nums = train_nums                # total training steps for each episode
         self.num_in_buffer = 0                      # transition's num in buffer
         self.buffer_size = buffer_size              # replay buffer size
-        self.start_learning = start_learning        # step to begin learning(no update before that step)
+        self.start_learning = start_learning        # episode timestep to begin learning(no update before that step)
 
         # replay buffer params [(s, a, r, ns, done), ...]
         self.obs = np.empty((self.buffer_size,) + self.env.reset().shape)
@@ -71,10 +71,10 @@ class DQNAgent:  # Deep Q-Network
         obs = self.env.reset()
         for t in range(1, self.train_nums):
             best_action, q_values = self.model.action_value(obs[None])  # input the obs to the network model
-            action = self.get_action(best_action)   # get the real action
+            action = self.get_action(best_action)   # get the real action depending on epsilon greedy approach
             next_obs, reward, done, info = self.env.step(action)    # take the action in the env to return s', r, done
-            self.store_transition(obs, action, reward, next_obs, done)  # store that transition into replay butter
-            self.num_in_buffer = min(self.num_in_buffer + 1, self.buffer_size)
+            self.store_transition(obs, action, reward, next_obs, done)  # store that transition into experience replay butter
+            self.num_in_buffer = min(self.num_in_buffer + 1, self.buffer_size) # update counter
 
             if t > self.start_learning:  # start learning
                 losses = self.train_step()

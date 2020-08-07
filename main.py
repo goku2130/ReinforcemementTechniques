@@ -1,5 +1,4 @@
 import gym
-import time
 from DQN import DQNModel,DQNAgent
 
 def test_model():
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     agent = DQNAgent(model, target_model,  env)
     # test before
     rewards_sum = agent.evaluation(env)
-    print("Before Training: %d out of 200" % rewards_sum) # 9 out of 200
+    print("Before Training: %d out of 200" % rewards_sum) # 10 out of 200
 
     agent.train()
     # test after
