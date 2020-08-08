@@ -111,7 +111,7 @@ class DDQNAgent:  # Deep Q-Network
         if np.random.random_sample() > 0.5:
             # choose same as DQN
             target_q = r_batch + self.gamma * np.amax(self.get_target_value(ns_batch), axis=1) * (1 - done_batch)
-            target_f = self.model.predict(s_batch)
+            target_f = self.get_target_value(s_batch)
         else:
             # choose different models for DDQN
             best_action_idxes, _ = self.model.action_value(ns_batch)
