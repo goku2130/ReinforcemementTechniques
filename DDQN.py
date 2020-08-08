@@ -34,9 +34,9 @@ class DQNModel(tf.keras.Model):
 
 class DDQNAgent:  # Deep Q-Network
     def __init__(self, model : DQNModel, target_model : DQNModel, env ,
-                 buffer_size=100, learning_rate=.0015, epsilon=.1, epsilon_dacay=0.995,
-                 min_epsilon=.01, gamma=.95, batch_size=4,
-                 target_update_iter=400, train_nums=5000, start_learning=10):
+                 buffer_size=200, learning_rate=.0015, epsilon=.1, epsilon_dacay=0.995,
+                 min_epsilon=.01, gamma=.95, batch_size=8,
+                 target_update_iter=200, train_nums=5000, start_learning=100):
 
         self.model = model
         # Fixed Q target for stability to make sure the two models don't update simultaneously
@@ -111,13 +111,13 @@ class DDQNAgent:  # Deep Q-Network
         if np.random.random_sample() > 0.5:
             # choose same as DQN
             target_q = r_batch + self.gamma * np.amax(self.get_target_value(ns_batch), axis=1) * (1 - done_batch)
-            target_f = self.get_target_value(s_batch)
+            target_f = self.model.predict(s_batch)
         else:
             # choose different models for DDQN
             best_action_idxes, _ = self.model.action_value(ns_batch)
             target_q_next_state = self.get_target_value(ns_batch)
             target_q = r_batch + self.gamma * target_q_next_state[np.arange(target_q_next_state.shape[0]), best_action_idxes] * (1 - done_batch)
-            target_f = self.get_target_value(s_batch)
+            target_f = self.model.predict(s_batch)
 
         for i, val in enumerate(a_batch):
             target_f[i][val] = target_q[i]
