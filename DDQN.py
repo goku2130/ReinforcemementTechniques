@@ -32,7 +32,7 @@ class DQNModel(tf.keras.Model):
         best_action = np.argmax(q_values, axis=-1)
         return best_action[0], q_values[0]
 
-class DQNAgent:  # Deep Q-Network
+class DDQNAgent:  # Deep Q-Network
     def __init__(self, model : DQNModel, target_model : DQNModel, env ,
                  buffer_size=100, learning_rate=.0015, epsilon=.1, epsilon_dacay=0.995,
                  min_epsilon=.01, gamma=.95, batch_size=4,
@@ -107,16 +107,18 @@ class DQNAgent:  # Deep Q-Network
         ns_batch = self.next_states[idxes]
         done_batch = self.dones[idxes]
 
-        # for fixed target Q update
-        # target_1 = current_reward_1 + gamma*max(nextstate_reward_1,nextstate_reward_2,nextstate_reward_3,.)
-        # target_2 = current_reward_2 + gamma*max(nextstate_reward_1,nextstate_reward_2,nextstate_reward_3,.)
-        # target_3 = current_reward_3 + gamma*max(nextstate_reward_1,nextstate_reward_2,nextstate_reward_3,.)
+        # ensure that current Q function and next state actions are taken from different models
+        if np.random.random_sample() > 0.5:
+            # choose same as DQN
+            target_q = r_batch + self.gamma * np.amax(self.get_target_value(ns_batch), axis=1) * (1 - done_batch)
+            target_f = self.model.predict(s_batch)
+        else:
+            # choose different models for DDQN
+            best_action_idxes, _ = self.model.action_value(ns_batch)
+            target_q_next_state = self.get_target_value(ns_batch)
+            target_q = r_batch + self.gamma * target_q_next_state[np.arange(target_q_next_state.shape[0]), best_action_idxes] * (1 - done_batch)
+            target_f = self.get_target_value(s_batch)
 
-        target_q = r_batch + self.gamma * np.amax(self.get_target_value(ns_batch), axis=1) * (1 - done_batch)
-
-        # for current state DQN
-
-        target_f = self.model.predict(s_batch)
         for i, val in enumerate(a_batch):
             target_f[i][val] = target_q[i]
 
@@ -174,6 +176,9 @@ class DQNAgent:  # Deep Q-Network
 
     def get_target_value(self, obs):
         return self.target_model.predict(obs)
+
+    def get_current_value(self, obs):
+        return self.model.predict(obs)
 
     def e_decay(self):
         self.epsilon *= self.epsilon_decay

@@ -1,5 +1,5 @@
 import gym
-from DQN import DQNModel,DQNAgent
+from DDQN import DQNModel,DDQNAgent
 
 def test_model():
     env = gym.make('CartPole-v0')
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     num_actions = env.action_space.n
     model = DQNModel(num_actions, 'DQN1')
     target_model = DQNModel(num_actions, 'DQN2')
-    agent = DQNAgent(model, target_model,  env)
+    agent = DDQNAgent(model, target_model,  env)
     # test before
     rewards_sum = agent.evaluation(env)
     print("Before Training: %d out of 200" % rewards_sum) # 10 out of 200
