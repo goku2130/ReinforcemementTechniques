@@ -5,7 +5,6 @@ import gym
 import time
 import numpy as np
 
-import tensorflow.keras.optimizers as ko
 
 np.random.seed(123)
 tf.random.set_seed(123)
@@ -17,7 +16,6 @@ class DQNModel(tf.keras.Model):
         super().__init__(name = name)
         self.fc1 = tf.keras.layers.Dense(32, activation = 'relu', kernel_initializer = 'he_uniform')
         self.fc2 = tf.keras.layers.Dense(64, activation = 'relu', kernel_initializer = 'he_uniform')
-        self.fc3 = tf.keras.layers.Dense(16, activation = 'relu', kernel_initializer = 'he_uniform')
         self.logits = tf.keras.layers.Dense(num_actions, name='q_values')
 
     def call(self, inputs):
@@ -186,7 +184,7 @@ class DDQNAgent:  # Deep Q-Network
 def test_model():
     env = gym.make('CartPole-v0')
     print('num_actions: ', env.action_space.n)
-    model = DQNModel(env.action_space.n)
+    model = DDQNModel(env.action_space.n)
 
     obs = env.reset()
     print('obs_shape: ', obs.shape)
